@@ -1,0 +1,11 @@
+h1 {
+    color: red;
+    border: 1px solid yellow;
+}
+
+img {
+    display: block;
+    width: 1000px;
+    height: 550px;
+    margin: 0 auto;
+}

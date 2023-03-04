@@ -1,6 +1,7 @@
 
 import express from "express";
-import userApiController from '../controller/userApiController'
+import userApiController from '../controller/userApiController';
+import categoryApiController from '../controller/categoryApiController';
 import multer from "multer";
 import path from "path";
 var appRoot = require('app-root-path');
@@ -40,6 +41,11 @@ const initAPIRoute = (app) => {
     router.post('/upload/:id', upload.single('image') , userApiController.handleUploadFile);
 
     // Categories
+    router.get('/categories', categoryApiController.getAllCategories);
+    router.get('/categories/:id', categoryApiController.getCategory);
+    router.post('/create-category', categoryApiController.createNewCategory);
+    router.put('/update-category', categoryApiController.updateCategory);
+    router.delete('/delete-categories/:id', categoryApiController.deleteCategory);
     // Transactions
     // Prefix for api/v1
     return app.use("/api/v1/", router)

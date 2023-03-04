@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <title>NodeJS Basic</title>
+</head>
+
+<body>
+    <div class="topnav">
+        <a class="active" href="/">Home</a>
+        <a href="/upload">Upload file</a>
+    </div>
+     <div class="upload-file-container">
+        <h1>Handling File Uploads using Express.js and Multer</h1>
+        <form method="POST" action="/upload-profile-image" enctype="multipart/form-data">
+            <div>
+                <h3>Upload single file:</h3>
+            </div>
+            <label>Avatar:</label>
+            <input type="file" name="profile_image"/>
+            <div>
+                <button type="submit" class="btn btn-save btn-primary">Upload</button>
+            </div>
+        </form>
+        <hr/>
+        <form method="POST" action="/upload-multiple-images" enctype="multipart/form-data">
+            <div>
+                <h3>Upload Multiple Files</h3>
+            </div>
+            <div>
+                <label>Select multiple images:</label>
+                <input type="file" name="multiple_images" multiple />
+            </div>
+            <div>
+                <button type="submit" class="btn btn-save btn-primary">Submit</button>
+            </div>
+        </form>
+     </div>
+</body>
+</html>

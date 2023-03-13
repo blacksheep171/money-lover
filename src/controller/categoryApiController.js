@@ -1,83 +1,134 @@
-import pool from "../configs/connectDB";
+import db from "../models";
+const Users = db.users;
+const Categories = db.categories;
+const Op = db.Sequelize.Op;
 
-let getAllCategories = async (req, res) => {
-    const [rows, fields] = await pool.execute('SELECT * FROM `categories`');
-
-    return res.status(200).json({
-        message: "success",
-        data: rows
-    })
-}
-
+// Create and Save a new Category
 let createNewCategory = async (req, res) => {
-    let {name, description, user_id} = req.body;
-   
-    if(!name || !description || !user_id) {
-        return res.status(200).json({
-            message: "required params"
-        })
+  // Validate request
+  let {name, description, user_id} = req.body
+  if ( !name || !description || !user_id) {
+    res.status(400).send({
+      message: "Content can not be empty!"
+    });
+    return;
+  }
+
+  // Create a Category
+  const category = {
+    name: req.body.name,
+    description: req.body.description,
+    user_id: req.body.user_id,
+  };
+  // const user = {first_name, last_name, balance, phone, address};
+  let user = Users.findByPk(user_id)
+  .then(result => {
+    if (!result) {
+      res.status(404).send({
+        message: "Cannot find User"
+      });
     }
-
-    /** check user_id exists */
-    // if(!user_id) {
-    //     return res.status(200).json({
-    //         message: "user not found"
-    //     })
-    // } 
-
-    await pool.execute('insert into `categories`(name, description, user_id) values (?, ?, ?)', [name, description, user_id])
-
-    return res.status(200).json({
-        message: "create successfully"
+  });
+  // Save User in the database
+  await Categories.create(category)
+    .then(result => {
+      res.status(200).send({
+        message: "success",
+        data: result      
+      });
     })
-}
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while creating the Category."
+      });
+    });
+};
+
+// Retrieve all Categories from the database.
+let getAllCategories = async (req, res) => {
+    const name = req.query.name;
+    var condition = name ? { name: { [Op.like]: `%${name}%` } } : null;
+  
+    await Categories.findAll({ where: condition })
+      .then(result => {
+        res.status(200).send({
+          message: "success",
+          data: result      
+        });
+      })
+      .catch(err => {
+        res.status(500).send({
+          message:
+            err.message || "Some error occurred while retrieving Categories."
+        });
+      });
+  };
+
+  // Find a single Category with an id
+let getCategory = async (req, res) => {
+  let categoryId = req.params.id;
+  await Categories.findByPk(categoryId)
+    .then(result => {
+      if (result) {
+        res.status(200).send({
+          message: "success",
+          data: result      
+        });
+      } else {
+        res.status(404).send({
+          message: `Cannot find User with id = ${categoryId}.`
+        });
+      }
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: "Error retrieving User with id=" + categoryId
+      });
+    });
+};
 
 let updateCategory = async (req, res) => {
-    let {name, description, user_id, id} = req.body;
-
-    if(!name || !description || !user_id || !id) {
-        return res.status(200).json({
-            message: "required params"
-        })
-    }
-    
-    await pool.execute('update categories set name = ? , description = ? , user_id = ? where id = ?', [name, description, user_id, id]);
-    
-    return res.status(200).json({
-        message: "update successfully"
+  const categoryId = req.params.id;
+  console.log(">>> check id", categoryId);
+  await Categories.update(req.body, {
+    where: { id: categoryId }
+  })
+    .then((num) => {
+      if (num == 1) {
+        console.log(">>> check number", num);
+        res.status(200).send({
+          message: "Category was updated successfully"     
+        });
+      } else {
+        res.status(404).send({
+          message: `Cannot update Category with id=${categoryId}.`
+        });
+      }
     })
-}
+    .catch(err => {
+      res.status(500).send({
+        message: "Error updating Category with id=" + categoryId
+      });
+    });
+};
 
-let getCategory = async (req, res) => {
-
-    let categoryId = req.params.id;
-    if(!categoryId) {
-        return res.status(200).json({
-            message: "required params"
-        })
-    }
-
-    const [rows, fields] = await pool.execute('SELECT * FROM `categories` where id = ?' , [categoryId]);
-
-    return res.status(200).json({
-        message: "success",
-        data: rows
-    })
-}
-
-
+// Delete all Users from the database.
 let deleteCategory = async (req, res) => {
-    let categoryId = req.params.id;
-    if(!categoryId) {
-        return res.status(200).json({
-            message: "required id"
-        })
-    }
-    await pool.execute('delete from categories where id = ?', [categoryId]);
-    return res.status(200).json({
-        message: "delete successfully"
+  const cateogryId = req.params.id;
+  await Categories.destroy({
+    where: {id: cateogryId},
+  })
+    .then(() => {
+      res.send({ message: `deleted successfully!` });
     })
-}
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while removing Category."
+      });
+    });
+};
 
 module.exports = {
     getAllCategories, createNewCategory, getCategory, updateCategory, deleteCategory

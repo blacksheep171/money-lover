@@ -2,6 +2,7 @@
 import express from "express";
 import userApiController from '../controller/userApiController';
 import categoryApiController from '../controller/categoryApiController';
+import transactionApiController from '../controller/transactionApiController';
 import multer from "multer";
 import path from "path";
 var appRoot = require('app-root-path');
@@ -33,9 +34,9 @@ const imageFilter = function(req, file, cb) {
 
 const initAPIRoute = (app) => {
     // Users
-    router.get('/users', userApiController.getAllUsers);
-    router.post('/create-user', userApiController.createNewUser);
-    router.put('/update-user', userApiController.updateUser);
+    router.get('/users', userApiController.getAll);
+    router.post('/create-user', userApiController.createUser);
+    router.put('/update-user/:id', userApiController.updateUser);
     router.get('/users/:id', userApiController.getUser);
     router.delete('/delete-user/:id', userApiController.deleteUser);
     router.post('/upload/:id', upload.single('image') , userApiController.handleUploadFile);
@@ -44,9 +45,14 @@ const initAPIRoute = (app) => {
     router.get('/categories', categoryApiController.getAllCategories);
     router.get('/categories/:id', categoryApiController.getCategory);
     router.post('/create-category', categoryApiController.createNewCategory);
-    router.put('/update-category', categoryApiController.updateCategory);
+    router.put('/update-category/:id', categoryApiController.updateCategory);
     router.delete('/delete-categories/:id', categoryApiController.deleteCategory);
     // Transactions
+    router.get('/transactions', transactionApiController.getAllTransactions);
+    router.get('/transactions/:id', transactionApiController.getUserTransactions);
+    router.post('/create-transaction', transactionApiController.createNewTransaction);
+    router.put('/update-transaction/:id', transactionApiController.updateTransaction);
+    router.delete('/delete-transactions/:id', transactionApiController.deleteTransaction);
     // Prefix for api/v1
     return app.use("/api/v1/", router)
 }

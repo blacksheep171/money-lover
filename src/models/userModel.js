@@ -11,6 +11,13 @@ module.exports = (sequelize, Sequelize) => {
       last_name: {
         type: Sequelize.STRING
       },
+      email: {
+        type: Sequelize.STRING,
+        unique: true
+      },
+      password: {
+        type: Sequelize.STRING
+      },
       image: {
         type: Sequelize.TEXT
       },
@@ -22,6 +29,19 @@ module.exports = (sequelize, Sequelize) => {
       },
       address: {
         type: Sequelize.STRING
+      },
+      access_token: {
+        type: Sequelize.STRING,
+        unique: true
+      },
+      refresh_token: {
+        type: Sequelize.STRING,
+        unique: true
+      },
+      isAdmin: {
+        type: Sequelize.BOOLEAN,
+        unique: true,
+        default: false
       }
     },{
       timestamps: true,

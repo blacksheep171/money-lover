@@ -3,8 +3,9 @@ import express from 'express';
 import configViewEngine from './configs/viewEngine';
 import initWebRoute from "./route/web";
 import initAPIRoute from "./route/api";
-import connection from './configs/connectDB';
+// import connection from './configs/connectDB';
 import db from "./models";
+import {responseMiddleware} from './middleware/responseMiddleware';
 var cors = require('cors');
 
 var morgan = require('morgan');
@@ -16,10 +17,14 @@ const port = process.env.PORT
 app.use(cors());
 
 app.use((req, res, next) => {
-  console.log('>>> my middleware');
+  // console.log('>>> my middleware');
   console.log(req.method);
   next();
 });
+
+
+app.use(responseMiddleware);
+
 // declare middleware 
 app.use(morgan('combined'));
 app.use(express.urlencoded({ extended: true }));

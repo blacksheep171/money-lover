@@ -1,8 +1,9 @@
 
 import express from "express";
-import userApiController from '../controller/userApiController';
-import categoryApiController from '../controller/categoryApiController';
-import transactionApiController from '../controller/transactionApiController';
+import userApiController from '../controller/api/userApiController';
+import categoryApiController from '../controller/api/categoryApiController';
+import transactionApiController from '../controller/api/transactionApiController';
+import authMiddleware from "../middleware/authMiddleware.js";
 import multer from "multer";
 import path from "path";
 var appRoot = require('app-root-path');
@@ -11,7 +12,6 @@ let router = express.Router();
 
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
-        // console.log(">>> check appRoot: ", appRoot);
         cb(null, appRoot + '/src/public/images/');
     },
 
@@ -34,12 +34,14 @@ const imageFilter = function(req, file, cb) {
 
 const initAPIRoute = (app) => {
     // Users
-    router.get('/users', userApiController.getAll);
-    router.post('/create-user', userApiController.createUser);
-    router.put('/update-user/:id', userApiController.updateUser);
+    router.post('/register', userApiController.register);
+    router.post('/login', userApiController.login);
+    router.get('/users', userApiController.getAll)
+    router.post('/create-user', userApiController.create);
+    router.put('/update-user/:id', userApiController.update);
     router.get('/users/:id', userApiController.getUser);
     router.delete('/delete-user/:id', userApiController.deleteUser);
-    router.post('/upload/:id', upload.single('image') , userApiController.handleUploadFile);
+    router.post('/upload/:id', upload.single('image') , userApiController.uploadImage);
 
     // Categories
     router.get('/categories', categoryApiController.getAllCategories);
@@ -53,6 +55,7 @@ const initAPIRoute = (app) => {
     router.post('/create-transaction', transactionApiController.createNewTransaction);
     router.put('/update-transaction/:id', transactionApiController.updateTransaction);
     router.delete('/delete-transactions/:id', transactionApiController.deleteTransaction);
+    router.get('/total-transactions/:id', transactionApiController.getUserTotalTransaction);
     // Prefix for api/v1
     return app.use("/api/v1/", router)
 }

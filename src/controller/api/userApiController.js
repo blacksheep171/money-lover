@@ -6,7 +6,8 @@ import {
   createUser,
   updateUser,
   removeUser,
-  handleUploadImage
+  handleUploadImage,
+  handleUploadBase64
 } from  '../../services/userService';
 
 let create = async (req, res) => {
@@ -43,7 +44,6 @@ let getAll = async (req, res) => {
   }
 }
  
-// // user login
 let login = async (req, res) => {
   let { email, password } = req.body;
   if (!email || !password) {
@@ -145,34 +145,27 @@ let uploadImage = async (req, res) => {
   }catch(e){
     return res.sendServerError('something went wrong when update image');
   }
+}
 
-  // let image = path.join(__dirname,req.file.filename);
-  // let image = req.file.filename;
-  // console.log(">>> avatar:", image);
-  // // Display uploaded image for user validation
-  // await Users.update({
-  //   image: image
-  // }, {
-  //   where: { id: userId }
-  // })
-  //   .then(num => {
-  //     if (num == 1) {
-  //       console.log(">>> check number", num);
-  //       res.status(200).send({
-  //         message: "You have uploaded this image",
-  //         // data: user      
-  //       });
-  //     } else {
-  //       res.status(404).send({
-  //         message: `Image can not upload, please try later!`
-  //       });
-  //     }
-  //   })
-  //   .catch(err => {
-  //     res.status(500).send({
-  //       message: "Error updating Users image."
-  //     });
-  //   });
+let uploadBase64 = async (req, res) => {
+  let userId = req.params.id;
+  if (!userId) {
+    return res.sendBadRequestError('required id')
+
+  }
+
+  let { image } = req.body;
+  try{
+
+      const response = await handleUploadBase64({userId, image});
+    if(!response) {
+      return res.sendBadRequestError('Image can not upload, please try later!');
+    } else {
+      return res.sendSuccess('upload successfully', response.data);
+    }
+  }catch(e){
+    return res.sendServerError('something went wrong when update image');
+  }
 }
 
 export default {
@@ -183,5 +176,6 @@ export default {
   update,
   uploadImage,
   register,
-  login
+  login,
+  uploadBase64
 }

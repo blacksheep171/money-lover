@@ -4,33 +4,12 @@ import userApiController from '../controller/api/userApiController';
 import categoryApiController from '../controller/api/categoryApiController';
 import transactionApiController from '../controller/api/transactionApiController';
 import authMiddleware from "../middleware/authMiddleware.js";
-import multer from "multer";
-import path from "path";
-var appRoot = require('app-root-path');
+
+import {
+    upload
+} from "../services/uploadService";
 
 let router = express.Router();
-
-const storage = multer.diskStorage({
-    destination: function(req, file, cb) {
-        cb(null, appRoot + '/src/public/images/');
-    },
-
-    // By default, multer removes file extensions so let's add them back
-    filename: function(req, file, cb) {
-        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
-    }
-});
-
-let upload = multer({ storage: storage, fileFilter: imageFilter });
-
-const imageFilter = function(req, file, cb) {
-    // Accept images only
-    if (!file.originalname.match(/\.(jpg|JPG|jpeg|JPEG|png|PNG|gif|GIF)$/)) {
-        req.fileValidationError = 'Only image files are allowed!';
-        return cb(new Error('Only image files are allowed!'), false);
-    }
-    cb(null, true);
-};
 
 const initAPIRoute = (app) => {
     // Users
@@ -42,6 +21,7 @@ const initAPIRoute = (app) => {
     router.get('/users/:id', userApiController.getUser);
     router.delete('/delete-user/:id', userApiController.deleteUser);
     router.post('/upload/:id', upload.single('image') , userApiController.uploadImage);
+    router.post('/upload-base64/:id', upload.single('image') , userApiController.uploadBase64);
 
     // Categories
     router.get('/categories', categoryApiController.getAllCategories);

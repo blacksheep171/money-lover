@@ -77,7 +77,6 @@ let getUserTotalTransaction = async (req, res) => {
     return res.sendBadRequestError('error')
   }
    
-
 }
 
 export default {

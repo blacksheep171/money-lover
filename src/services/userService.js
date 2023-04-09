@@ -1,6 +1,12 @@
 import db from "../models";
 import bcrypt from 'bcrypt';
+import { randomBytes } from "crypto";
 import jwt from 'jsonwebtoken';
+// import { Buffer } from "buffer";
+// import { fs } from "fs";
+var appRoot = require('app-root-path');
+var fs = require('fs');
+var mime = require ('mime');
 const Users = db.users;
 
 export const getAllUsers = async () => {
@@ -285,6 +291,70 @@ export const handleUploadImage = async ({userId, image}) => {
         console.log(e);
         return {
             users: null
+        }
+    }  
+}
+
+
+export const handleUploadBase64 = async ({userId, image}) => {
+    let userData = null;
+    let matches = image.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+    const response = {};
+    
+    if (matches.length !== 3) {
+        return {
+            message: 'input invalid',
+            data: null
+        }
+    }
+
+    response.type = matches[1];
+    response.data = Buffer.from(matches[2], 'base64');
+
+    console.log("data: ",response.data)
+    try {   
+        
+        const decodeImage = response;
+        let imageBuffer = decodeImage.data;
+
+        let filePath =  appRoot + '/src/public/images/';
+        let name = Date.now()+'.png';
+        let fileName = filePath + name;
+        let image = 'image-' + name;
+        let upload = fs.writeFileSync(fileName, imageBuffer, (err) => {
+            if (err) {
+              console.error(err);
+            } else {
+              console.log(`File ${fileName} saved`);
+            }
+        });
+
+        const checkUser = await Users.findByPk(userId);
+        if(checkUser == 0){
+            return {
+                message: 'id not found',
+                data: null
+            }
+        }
+
+        const user = await Users.update({
+            image: image 
+        }, {
+            where: {id : userId}
+        }) 
+        if(user) {
+            userData = await getDetails(userId);
+        }
+        return {
+            message: 'upload successfully',
+            data: userData
+        }
+
+    }catch(e){
+        console.log(e);
+        return {
+            message: e,
+            data: null
         }
     }  
 }

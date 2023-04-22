@@ -67,16 +67,36 @@ export const registerUser = async ({params}) => {
 }
 
 export const generalAcessToken = (data) => {
-  let key = process.env.SECRET_KEY;
+  let key = process.env.ACCESS_TOKEN_SECRET;
   const access_token = jwt.sign(data, key, { expiresIn: '1h' });
   console.log(">>> check access token: ", access_token);
   return access_token
 }
 
 export const generalRefreshToken = (data) => {
-  const access_token = jwt.sign(data, process.env.SECRET_KEY, { expiresIn: '365d' })
+    let key = process.env.REFRESH_TOKEN_SECRET;
+  const access_token = jwt.sign(data, key, { expiresIn: '30d' })
   return access_token
 }
+
+export const refreshTokenGeneral = async ({params}) => {
+    const key = process.env.REFRESH_TOKEN_SECRET;
+    try{
+        // console.log(">> check token: ",params.token);
+        const jwtPayload = await jwt.verify(params.token, key);
+
+        console.log('jwtPayload',jwtPayload)
+
+        return jwtPayload
+    }catch(e){
+        console.log(e);
+        return {
+            message: 'error',
+            data: null
+        }
+    }   
+}
+
 export const loginUser = async ({params}) => {
     
     try{
@@ -103,12 +123,14 @@ export const loginUser = async ({params}) => {
             }
             let payload = { id: userData.id, email: userData.email, isAdmin: userData.isAdmin }
             const access_token = generalAcessToken(payload);
+            const refresh_token = generalRefreshToken(payload);
             
             return {
                 message: 'login successfully',
                 data : {
                     users: payload,
-                    token: access_token
+                    accessToken: access_token,
+                    refreshToken: refresh_token,
                 }
 
             }
@@ -178,7 +200,6 @@ export const createUser = async ({params}) => {
             data: userData
         }
     }catch(e){
-        console.log(e);
         return {
             message: e,
             data: null
@@ -248,7 +269,7 @@ export const removeUser = async ({userId}) => {
             }
         }
 
-        const userData = await Users.destroy({
+        await Users.destroy({
             where: { id: userId },
         });
 
@@ -311,7 +332,7 @@ export const handleUploadBase64 = async ({userId, image}) => {
     response.type = matches[1];
     response.data = Buffer.from(matches[2], 'base64');
 
-    console.log("data: ",response.data)
+    // console.log("data: ",response.data)
     try {   
         
         const decodeImage = response;
@@ -321,7 +342,7 @@ export const handleUploadBase64 = async ({userId, image}) => {
         let name = Date.now()+'.png';
         let fileName = filePath + name;
         let image = 'image-' + name;
-        let upload = fs.writeFileSync(fileName, imageBuffer, (err) => {
+        fs.writeFileSync(fileName, imageBuffer, (err) => {
             if (err) {
               console.error(err);
             } else {

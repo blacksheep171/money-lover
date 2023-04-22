@@ -11,7 +11,7 @@ const authMiddleware = (req, res, next) => {
             message: 'Token is valid'
         })
     }
-    let key = process.env.SECRET_KEY;
+    let key = process.env.ACCESS_TOKEN_SECRET;
     jwt.verify(token, key, function(err, user) {
         if(err){
             return res.status(404).json({
